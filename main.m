@@ -6,11 +6,13 @@ JPY = countJPY(krw_money);
 % 이곳에 나머지 함수 호출해주세요
 dollar = countDollar(krw_money);
 euro = countEuro(krw_money);
+yuan = countCNY(krw_money);
 
 fprintf('최소 엔 지폐 개수는 %d 개', JPY);
 % 이곳에 나머지 출력문 코드 작성해주세요
 fprintf("최소 달러 지폐 개수는 %d 개\n",dollar);
 fprintf("최소 유로 지폐 개수는 %d 개\n",euro);
+fprintf("최소 위안 지폐 개수는 %d 개\n",yuan);
 
 % 한국 원화 1000원 기준 0.81달러
 function bill = countDollar(krw_money)
@@ -44,10 +46,26 @@ function bill = countEuro(krw_money)
     end
     bill = count;  %지폐 총합
 end
-% 한국 원화 1000원 기준 102.87엔
+
 % 한국 원화 1000원 기준 5.18위안
+function bill = countCNY(krw_money)
+    cny = (krw_money/1000)*5.18;          %환전- 1000원기준 5.18위안
+    cny = floor(cny);
+    count = 0;                          %지폐 수
+    china_unit = [100 50 20 10 5 1];    %지폐 단위
+    remain = [0 0 0 0 0 0];
+    for unit = 1:6
+        remain(unit) = fix(cny/china_unit(unit));
+        cny = mod(cny,china_unit(unit));
+    end
+    for c = 1:6
+        count = count + remain(c);
+    end
+    
+    bill = count;
+end
 
-
+% 한국 원화 1000원 기준 102.87엔
 function bill = countJPY(krw_money)
     money_jpy = 102.87*(krw_money/1000);        % 입력받은 원화를 엔화로 환전
     money_jpy = int64(money_jpy);               % 정수형으로 변환.
