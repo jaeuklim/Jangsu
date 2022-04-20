@@ -4,14 +4,46 @@ krw_money = input("원화를 입력하세요 : ");
 
 JPY = countJPY(krw_money);
 % 이곳에 나머지 함수 호출해주세요
-
+dollar = countDollar(krw_money);
+euro = countEuro(krw_money);
 
 fprintf('최소 엔 지폐 개수는 %d 개', JPY);
 % 이곳에 나머지 출력문 코드 작성해주세요
-
+fprintf("최소 달러 지폐 개수는 %d 개\n",dollar);
+fprintf("최소 유로 지폐 개수는 %d 개\n",euro);
 
 % 한국 원화 1000원 기준 0.81달러
+function bill = countDollar(krw_money)
+    count = 0;  %갯수
+    dollar_list = [100 50 20 10 5 2 1];  %지폐 단위
+    money = krw_money / 1000 * 0.81;  %환전
+    mod1 = money;
+    for i = 1:7
+        if mod1 > dollar_list(i)
+            count = count + floor(mod1 / dollar_list(i)); %지폐 개수 구하기
+            mod1 = mod(mod1, dollar_list(i)); %나머지값
+        else
+            continue
+        end
+    end
+    bill = count;  %지폐 총합
+end
 % 한국 원화 1000원 기준 0.75유로
+function bill = countEuro(krw_money)
+    count = 0;  %갯수
+    euro_list = [500 200 100 50 20 10 5];  %지폐 단위
+    money = krw_money / 1000 * 0.75;  %환전
+    mod1 = money;
+    for i = 1:7
+        if mod1 > euro_list(i)
+            count = count + floor(mod1 / euro_list(i)); %지폐 개수 구하기
+            mod1 = mod(mod1, euro_list(i)); %나머지값
+        else
+            continue
+        end
+    end
+    bill = count;  %지폐 총합
+end
 % 한국 원화 1000원 기준 102.87엔
 % 한국 원화 1000원 기준 5.18위안
 
