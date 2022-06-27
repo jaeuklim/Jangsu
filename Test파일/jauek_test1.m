@@ -1,4 +1,4 @@
-src = imread("문제5.png");
+src = imread("문제3.png");
 
 src_hsv = rgb2hsv(src);
 thdown_green = [0.25, 40/240, 80/240];         % 임계값 설정.
@@ -7,7 +7,6 @@ thup_green = [0.40, 240/240, 240/240];
 [rows, cols, channels] = size(src_hsv);        % 이미지의 가로,세로 픽셀 수 저장
 dst_hsv1 = double(zeros(size(src_hsv)));       % 검정 이미지 생성
 dst_hsv2 = double(zeros(size(src_hsv)));
-dst_hsv3 = double(zeros(size(src_hsv)));
 dst_h = dst_hsv1(:, :, 1);
 dst_s = dst_hsv1(:, :, 2);
 dst_v = dst_hsv1(:, :, 3);
@@ -21,9 +20,7 @@ for row = 1:rows
                 && thdown_green(2) < src_hsv(row, col, 2) && src_hsv(row, col, 2) < thup_green(2) ...
                 && thdown_green(3) < src_hsv(row, col, 3) && src_hsv(row, col, 3) < thup_green(3)
             dst_hsv1(row, col, :) = [0, 0, 1];
-            dst_hsv2(row, col, :) = [0, 0, 0];
         else
-            dst_hsv1(row, col, :) = [0, 0, 0];
             dst_hsv2(row, col, :) = [0, 0, 1];
         end
     end
@@ -31,9 +28,11 @@ end
     
 dst_rgb1 = hsv2rgb(dst_hsv1);
 dst_rgb2 = hsv2rgb(dst_hsv2);
-   
+
 dst_gray1 = rgb2gray(dst_rgb1);
-corners1 = pgonCorners(dst_gray1, 4);       % 바깥사각형 코너 좌표 검출
+dst_gray = edge(dst_gray1,'Canny');
+figure,imshow(dst_gray)
+corners1 = pgonCorners(dst_gray, 4);       % 바깥사각형 코너 좌표 검출
 
 p1 = corners1(4, :);         % 좌상단
 p2 = corners1(3, :);         % 우상단
@@ -63,7 +62,7 @@ end
 center_row = center_row / count_pixel;
 center_col = center_col / count_pixel;
     
-answer = [center_col, center_row]          % 센터좌표 검출
+answer = [center_col, center_row];          % 센터좌표 검출
 
 subplot(2, 3, 1); imshow(src);
 subplot(2, 3, 2); imshow(dst_rgb1);
