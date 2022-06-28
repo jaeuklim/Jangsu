@@ -1,4 +1,4 @@
-src = imread("문제3.png");
+src = imread("문제5.png");
 
 src_hsv = rgb2hsv(src);
 thdown_green = [0.25, 40/240, 80/240];         % 임계값 설정.
@@ -31,7 +31,7 @@ dst_rgb2 = hsv2rgb(dst_hsv2);
 
 dst_gray1 = rgb2gray(dst_rgb1);
 dst_gray = edge(dst_gray1,'Canny');
-figure,imshow(dst_gray)
+%figure,imshow(dst_gray)
 corners1 = pgonCorners(dst_gray, 4);       % 바깥사각형 코너 좌표 검출
 
 p1 = corners1(4, :);         % 좌상단
@@ -62,7 +62,7 @@ end
 center_row = center_row / count_pixel;
 center_col = center_col / count_pixel;
     
-answer = [center_col, center_row];          % 센터좌표 검출
+answer = [center_col, center_row]          % 센터좌표 검출
 
 subplot(2, 3, 1); imshow(src);
 subplot(2, 3, 2); imshow(dst_rgb1);
