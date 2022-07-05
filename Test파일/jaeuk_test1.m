@@ -1,4 +1,4 @@
-src = imread("문제5.png");
+src = imread("문제2.png");
 
 src_hsv = rgb2hsv(src);
 thdown_green = [0.25, 40/240, 80/240];         % 임계값 설정.
