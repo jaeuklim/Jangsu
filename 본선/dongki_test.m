@@ -5,25 +5,27 @@ thup_blue = [0.75, 1, 1];
 drone = ryze();
 cameraObj = camera(drone);
 takeoff(drone);
-moveup(drone, 'distance', 0.6);
+moveup(drone, 'distance', 0.3);
 
 while(1)
     frame = snapshot(cameraObj);
 
     frame_hsv = rgb2hsv(frame);
 
-    dst_h = src_hsv(:, :, 1);
-    dst_s = src_hsv(:, :, 2);
-    dst_v = src_hsv(:, :, 3);
+    dst_h = frame_hsv(:, :, 1);
+    dst_s = frame_hsv(:, :, 2);
+    dst_v = frame_hsv(:, :, 3);
+
+    [rows, cols, channels] = size(frame_hsv);  
 
     dst_hsv1 = double(zeros(size(dst_h)));       
     dst_hsv2 = double(zeros(size(dst_h)));
 
     for row = 1:rows
         for col = 1:cols
-           if thdown_green(1) < dst_h(row, col) && dst_h(row, col) < thup_green(1) ...
-               && thdown_green(2) < dst_s(row, col) && dst_s(row, col) < thup_green(2) ...
-               && thdown_green(3) < dst_v(row, col) && dst_v(row, col) < thup_green(3)
+           if thdown_blue(1) < dst_h(row, col) && dst_h(row, col) < thup_blue(1) ...
+               && thdown_blue(2) < dst_s(row, col) && dst_s(row, col) < thup_blue(2) ...
+               && thdown_blue(3) < dst_v(row, col) && dst_v(row, col) < thup_blue(3)
                dst_hsv1(row, col) = 1;
             else
                 dst_hsv2(row, col) = 1;
@@ -36,6 +38,8 @@ while(1)
         %좌우 부터
         lcnt = 0;
         rcnt = 0;
+        ucnt = 0;
+        dcnt = 0;
         for row = 1:rows                                
             for col = 1:cols
                 %좌
@@ -124,7 +128,7 @@ while(1)
     center_col = center_col / count_pixel;
     
     answer = [center_col, center_row];          % 센터좌표 검출
-    %{
+    
     subplot(2, 3, 1); imshow(frame);
     subplot(2, 3, 2); imshow(dst_rgb1);
     subplot(2, 3, 3); imshow(dst_rgb2);
@@ -133,7 +137,7 @@ while(1)
     plot(center_col, center_row, 'r*'); hold off;
     subplot(2, 3, 6); imshow(frame); hold on;
     plot(center_col, center_row, 'r*'); hold off;
-    %}
+    
 end
 
 %land(droneObj);
