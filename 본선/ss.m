@@ -87,12 +87,75 @@ while(1)
     while 1
         corners1 = pgonCorners(canny1,4);
         %모서리 개수    
-        for i = 1:size(corners)
+        for i = 1:size(corners1)
             count = count + 1;
         end
         %너무 가까울 때나 모서리가 안보일 때
         if count < 4
-            moveback(drone, 'distance', 0.2);
+             a = [0 0 0 0]; % a4: 좌상 a3: 우상 a1: 좌하 a2: 우하 ㄹ위치에 있을 때
+            if count == 3       % 문제3번처럼 한 구석이 안나올 때
+                for i = 1:size(corners1)
+                    if corners1(i,1) >= 716
+                        a(1) = a(1)+1;
+                        a(2) = a(2)+1;
+                    end
+                    if corners1(i,1) <= 4
+                        a(3) = a(3)+1;
+                        a(4) = a(4)+1;
+                   end
+                    if corners1(i,2) >= 956
+                        a(2) = a(2)+1;
+                        a(3) = a(3)+1;
+                    end
+                    if corners1(i,2) <= 4
+                        a(4) = a(4)+1;
+                        a(1) = a(1)+1;
+                    end
+                end
+            end
+            % roi를 할 수 있도록 순서를 재배치 하고 가장 끝쪽 값을 넣어줌
+            for i = 1:4
+                if a(i) == 2
+                    if i == 4
+                        corners1(i,2) = 4;
+                        corners1(i,1) = 4;
+                    else
+                        for j = 4:-1:i+1
+                            corners1(j,1) = corners1(j-1,1);
+                            corners1(j,2) = corners1(j-1,2);
+                        end
+                        if i == 1 
+                            corners1(i,2) = 4;
+                            corners1(i,1) = 716;
+                        elseif i == 2
+                            corners1(i,2) = 956;
+                            corners1(i,1) = 716;
+                        elseif i == 3
+                            corners1(i,1) = 4;
+                            corners1(i,2) = 956;           
+                        end
+                    end
+                end
+            end
+            % 값이 잘 나올 수 있도록 roi값을 줄여줌
+            for i = 1:4
+                if i == 1
+                    corners1(i,1) = corners1(i,1)-4;
+                    corners1(i,2) = corners1(i,2)+4;
+                end
+                if i == 2
+                    corners1(i,1) = corners1(i,1)-4;
+                    corners1(i,2) = corners1(i,2)-4;
+                end  
+                if i == 3
+                    corners1(i,1) = corners1(i,1)+4;
+                    corners1(i,2) = corners1(i,2)-4;
+                end  
+                if i == 4
+                    corners1(i,1) = corners1(i,1)+4;
+                    corners1(i,2) = corners1(i,2)+4;
+                end  
+            end
         else
             break;
         end
