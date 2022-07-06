@@ -122,8 +122,11 @@ while(1)
     center_col = center_col / count_pixel;
 
     answer = [center_col, center_row];          % 센터좌표 검출
-    
 
+    if abs(center_row -rows/2) < 300 && abs(center_col - cols/2)
+        moveforward(drone,'distance', 0.5)
+    end
+    
     %{
     subplot(2, 3, 1); imshow(frame);
     subplot(2, 3, 2); imshow(dst_rgb1);
