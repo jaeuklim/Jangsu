@@ -35,43 +35,38 @@ while(1)
 
     %상하좌우 맞추기
     while 1
-        %좌우 부터
         lcnt = 0;
         rcnt = 0;
         ucnt = 0;
         dcnt = 0;
         for row = 1:rows                                
             for col = 1:cols
-                %좌
-                if row < 360
-                    lcnt = lcnt + 1;
-                %우
-                else
-                    rcnt = rcnt + 1;
-                end        
+                if dst_hsv1(row, col) == 1
+                    %좌
+                    if row < 360
+                        lcnt = lcnt + 1;
+                    %우
+                    else
+                        rcnt = rcnt + 1;
+                    end
+                    %상
+                    if row < 480
+                        ucnt = ucnt + 1;
+                    %하
+                    else
+                        dcnt = dcnt + 1;
+                    end
+                end
             end
         end
-        %상하
-        ucnt = 0;
-        dcnt = 0;
-        for row = 1:rows                                
-            for col = 1:cols
-                %상
-                if row < 480
-                    ucnt = ucnt + 1;
-                %하
-                else
-                    dcnt = dcnt + 1;
-                end        
-            end
-        end
-        if (lcnt - rcnt) > 2000
+
+        if (lcnt - rcnt) > 150
             moveleft(drone, 'distance', 0.2);
-        elseif (rcnt - lcnt) > 2000
+        elseif (rcnt - lcnt) > 150
             moveright(drone, 'distance', 0.2);
-        elseif (ucnt - dcnt) > 2000
+        elseif (ucnt - dcnt) > 300
             moveup(drone, 'distance', 0.2);
-        elseif (dcnt - ucnt) > 2000
+        elseif (dcnt - ucnt) > 300
             movedown(drone, 'distance', 0.2);
         else
             break;
@@ -89,17 +84,6 @@ while(1)
         %모서리 개수    
         for i = 1:size(corners)
             count = count + 1;
-        end
-        %너무 가까울 때나 모서리가 안보일 때
-        if count < 4
-            %만약 이전에 모서리가 4개가 다 검출되다가 안되는 것이라면
-            if count1 == 4
-                moveforward(drone,'distance',0.5);
-            else
-                moveback(drone, 'distance', 0.2);
-            end
-        else
-            break;
         end
         count1 = count;
     end
