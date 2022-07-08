@@ -72,10 +72,10 @@ while(1)
         end
         if (abs(lcnt - rcnt) <= 100 && abs(ucnt - dcnt) <= 100)
             moveforward (drone,'distance', 0.2);
-            upcount == 0;
-            downcount == 0;
-            leftcount == 0;
-            rightcount == 0;
+            upcount = 0;
+            downcount = 0;
+            leftcount = 0;
+            rightcount = 0;
             for row = 1:rows
                 if (cols == 2)
                     if (dst_hsv1 == 1)
@@ -93,15 +93,15 @@ while(1)
                     if (dst_hsv1 == 1)
                         upcount = upcount + 1;
                     end
-                elseif (rows == 958)
+                elseif (rows == 718)
                     if (dst_hsv2 == 1)
                         downcount = downcount + 1;
                     end
                 end
             end
                 
-            if (upcount != 0 && downcount !=0 && leftcount !=0 && rightcount !=0)
-                for (int i = 0; i< 2; i++)
+            if (upcount == 716 && downcount == 716 && leftcount == 956 && rightcount == 956)
+                for c = 1:2
                     count_pixel = 0;
                     center_row = 0;
                     center_col = 0;
@@ -119,10 +119,12 @@ while(1)
 
                     answer = [center_col, center_row];
 
-                    if abs(center_row -rows/2) < 50 && abs(center_col - cols/2) < 50)
-                        moveforward(drone,'distance', 0.5)
+                    if (abs(center_row -rows/2) < 50 && abs(center_col - cols/2) < 50)
+                        moveforward(drone,'distance', 1);
                     end
                 end
+            elseif ((upcount ~= 0 && downcount ~= 0 && leftcount ~= 0 && rightcount ~= 0))
+                moveback(drone,'distance', 0.2);
             else
                 continue;
             end
