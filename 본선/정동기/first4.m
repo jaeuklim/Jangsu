@@ -32,6 +32,18 @@ while(1)
            end
         end
     end
+    pixelcount = 0;
+    for row = 1:rows
+        for col = 1:cols
+           if dst_hsv1 == 1
+                count = count + 1;
+           end
+        end
+    end
+    
+    if (count == 0)
+        moveback(drone,'Distance',0.3,'Speed',0.7);
+    end
 
     while (1)
         %좌우 부터
@@ -65,20 +77,20 @@ while(1)
         disp("우:" + rcnt)
         if (lcnt - rcnt) > 5000
             disp("오른쪽 움직임")
-            moveright(drone, 'distance', 0.2);
+            moveright(drone, 'Distance', 0.2,'Speed',0.7);
         elseif (rcnt - lcnt) > 5000
             disp("왼쪽 움직임")
-            moveleft(drone, 'distance', 0.2);
+            moveleft(drone, 'Distance', 0.2,'Speed',0.7);
         end
         if (ucnt - dcnt) > 5000
             disp("아래쪽 움직임")
-            movedown(drone, 'distance', 0.2);
+            movedown(drone, 'Distance', 0.2,'Speed',0.7);
         elseif (dcnt - ucnt) > 5000
             disp("위쪽 움직임")
-            moveup(drone, 'distance', 0.2);
+            moveup(drone, 'Distance', 0.2,'Speed',0.7);
         end
         if (abs(lcnt - rcnt) <= 5000 && abs(ucnt - dcnt) <= 5000)
-            moveforward (drone,'distance', 0.3);
+            moveforward (drone,'Distance', 0.3,'Speed',0.7);
             upcount = 0;
             downcount = 0;
             leftcount = 0;
@@ -126,10 +138,10 @@ while(1)
                 answer = [center_col, center_row];
 
                 if (abs(center_row -rows/2) < 1000 && abs(center_col - cols/2) < 1000)
-                    moveforward(drone,'distance', 1);
+                    moveforward(drone,'Distance', 1);
                 end
             elseif ((upcount ~= 0 && downcount ~= 0 && leftcount ~= 0 && rightcount ~= 0))
-                moveback(drone,'distance', 0.2);
+                moveback(drone,'Distance', 0.2,'Speed',0.7);
             end
         end
     end
