@@ -2,7 +2,7 @@
 thdown_blue = [0.55, 0.43, 0.25];
 thup_blue = [0.75, 1, 1];
 
-drone = ryze()
+drone = ryze();
 cameraObj = camera(drone);
 takeoff(drone);
 moveup(drone, 'distance', 0.4);
@@ -44,41 +44,36 @@ while(1)
                 if dst_hsv1(row,col) == 1
                     %상
                     if row < 360
-                        ucnt = ucnt + 1;
+                        lcnt = lcnt + 1;
                     %하
                     else
-                        dcnt = dcnt + 1;
+                        rcnt = rcnt + 1;
                     end
                     %좌
                     if col < 480
-                        lcnt = lcnt + 1;
+                        ucnt = ucnt + 1;
                     %우
                     else
-                        rcnt = rcnt + 1;
+                        dcnt = dcnt + 1;
                     end
                 end
             end
         end
-        disp("상:" + ucnt)
-        disp("하:" + dcnt)
-        disp("좌:" + lcnt)
-        disp("우:" + rcnt)
-        if (lcnt - rcnt) > 5000
+    
+        if (lcnt - rcnt) > 2000
             disp("오른쪽 움직임")
             moveright(drone, 'distance', 0.2);
-        elseif (rcnt - lcnt) > 5000
-            disp("왼쪽 움직임")
+        elseif (rcnt - lcnt) > 2000
+            
             moveleft(drone, 'distance', 0.2);
         end
-        if (ucnt - dcnt) > 5000
-            disp("아래쪽 움직임")
+        if (ucnt - dcnt) > 2000
             movedown(drone, 'distance', 0.2);
-        elseif (dcnt - ucnt) > 5000
-            disp("위쪽 움직임")
+        elseif (dcnt - ucnt) > 2000
             moveup(drone, 'distance', 0.2);
         end
-        if (abs(lcnt - rcnt) <= 5000 && abs(ucnt - dcnt) <= 5000)
-            moveforward (drone,'distance', 0.3);
+        if (abs(lcnt - rcnt) <= 2000 && abs(ucnt - dcnt) <= 2000)
+            moveforward (drone,'distance', 0.2);
             upcount = 0;
             downcount = 0;
             leftcount = 0;
@@ -125,7 +120,7 @@ while(1)
 
                 answer = [center_col, center_row];
 
-                if (abs(center_row -rows/2) < 1000 && abs(center_col - cols/2) < 1000)
+                if (abs(center_row -rows/2) < 500 && abs(center_col - cols/2) < 500)
                     moveforward(drone,'distance', 1);
                 end
             elseif ((upcount ~= 0 && downcount ~= 0 && leftcount ~= 0 && rightcount ~= 0))
