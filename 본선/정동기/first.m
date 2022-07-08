@@ -101,32 +101,28 @@ while(1)
             end
                 
             if (upcount == 716 && downcount == 716 && leftcount == 956 && rightcount == 956)
-                for c = 1:2
-                    count_pixel = 0;
-                    center_row = 0;
-                    center_col = 0;
-                    for row = 1:rows
-                        for col = 1:cols
-                            if dst_hsv2(row, col) == 1          
-                                count_pixel = count_pixel + 1;      %검출될때마다 픽셀수 세기
-                                center_row = center_row + row;      %검출될때마다 가로좌표 더하기
-                                center_col = center_col + col;      %검출될때마다 세로좌표 더하기
-                            end
+                count_pixel = 0;
+                center_row = 0;
+                center_col = 0;
+                for row = 1:rows
+                    for col = 1:cols
+                        if dst_hsv2(row, col) == 1          
+                            count_pixel = count_pixel + 1;      %검출될때마다 픽셀수 세기
+                            center_row = center_row + row;      %검출될때마다 가로좌표 더하기
+                            center_col = center_col + col;      %검출될때마다 세로좌표 더하기
                         end
                     end
-                    center_row = center_row / count_pixel;
-                    center_col = center_col / count_pixel;
+                end
+                center_row = center_row / count_pixel;
+                center_col = center_col / count_pixel;
 
-                    answer = [center_col, center_row];
+                answer = [center_col, center_row];
 
-                    if (abs(center_row -rows/2) < 50 && abs(center_col - cols/2) < 50)
-                        moveforward(drone,'distance', 1);
-                    end
+                if (abs(center_row -rows/2) < 50 && abs(center_col - cols/2) < 50)
+                    moveforward(drone,'distance', 1);
                 end
             elseif ((upcount ~= 0 && downcount ~= 0 && leftcount ~= 0 && rightcount ~= 0))
                 moveback(drone,'distance', 0.2);
-            else
-                continue;
             end
         end
     end
