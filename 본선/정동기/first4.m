@@ -36,12 +36,13 @@ while(1)
     for row = 1:rows
         for col = 1:cols
            if dst_hsv1 == 1
-                count = count + 1;
+                pixelcount = pixelcount + 1;
            end
         end
     end
     
-    if (count == 0)
+    if (pixelcount == 0)
+        disp("아무것도 안보이면 뒤로 가기")
         moveback(drone,'Distance',0.3,'Speed',0.7);
     end
 
@@ -78,14 +79,16 @@ while(1)
         if (lcnt - rcnt) > 5000
             disp("오른쪽 움직임")
             moveright(drone, 'Distance', 0.2,'Speed',0.7);
-        elseif (rcnt - lcnt) > 5000
+        end
+        if (rcnt - lcnt) > 5000
             disp("왼쪽 움직임")
             moveleft(drone, 'Distance', 0.2,'Speed',0.7);
         end
         if (ucnt - dcnt) > 5000
             disp("아래쪽 움직임")
             movedown(drone, 'Distance', 0.2,'Speed',0.7);
-        elseif (dcnt - ucnt) > 5000
+        end
+        if (dcnt - ucnt) > 5000
             disp("위쪽 움직임")
             moveup(drone, 'Distance', 0.2,'Speed',0.7);
         end
