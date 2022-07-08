@@ -2,7 +2,7 @@
 thdown_blue = [0.55, 0.43, 0.25];
 thup_blue = [0.75, 1, 1];
 
-drone = ryze();
+drone = ryze()
 cameraObj = camera(drone);
 takeoff(drone);
 moveup(drone, 'distance', 0.4);
@@ -33,6 +33,61 @@ while(1)
         end
     end
 
+<<<<<<< HEAD
+=======
+    %{
+    %상하좌우 맞추기
+    while 1
+        %좌우 부터
+        lcnt = 0;
+        rcnt = 0;
+        ucnt = 0;
+        dcnt = 0;
+        for row = 1:rows                                
+            for col = 1:cols
+                if dst_hsv1(row, col) == 1
+                     %좌
+                    if row < 360
+                        lcnt = lcnt + 1;
+                    %우
+                    else
+                        rcnt = rcnt + 1;
+                    end        
+                end
+            end
+        end
+        %상하
+        for row = 1:rows                                
+            for col = 1:cols
+                if dst_hsv1(row, col) == 1
+                    %상
+                    if row < 480
+                        ucnt = ucnt + 1;
+                    %하
+                    else
+                        dcnt = dcnt + 1;
+                    end        
+                end     
+            end
+        end
+        if (lcnt - rcnt) > 3000
+            moveleft(drone, 'distance', 0.2);
+        elseif (rcnt - lcnt) > 3000
+            moveright(drone, 'distance', 0.2);
+        elseif (ucnt - dcnt) > 3000
+            moveup(drone, 'distance', 0.2);
+        elseif (dcnt - ucnt) > 3000
+            movedown(drone, 'distance', 0.2);
+        else
+            break;
+        end
+    end
+    %}
+
+    dst_rgb1 = hsv2rgb(dst_hsv1);
+    dst_rgb2 = hsv2rgb(dst_hsv2);
+
+>>>>>>> e4e9eea1af4a4e80e83cdb31726b770e34637ef5
     dst_gray1 = im2gray(dst_hsv1);
     canny1 = edge(dst_gray1,'Canny');
 
@@ -45,7 +100,7 @@ while(1)
     
     roi_x = [corners1(1, 2) + 5, corners1(2, 2) - 5, corners1(3, 2) - 5, corners1(4, 2) + 5];  % roi범위 소량 확장
     roi_y = [corners1(1, 1) - 5, corners1(2, 1) - 5, corners1(3, 1) + 5, corners1(4, 1) + 5];  % roi범위 소량 확장
-    roi = roipoly(dst_gray, roi_x, roi_y);         % 코너 좌표만큼 안쪽 이미지 roi
+    roi = roipoly(dst_gray1, roi_x, roi_y);         % 코너 좌표만큼 안쪽 이미지 roi
 
     dst_img = dst_hsv2 .* roi;       
     dst_gray = im2gray(dst_img);
@@ -72,7 +127,7 @@ while(1)
         moveforward(drone,'distance', 0.5)
     end
     
-    %{
+    
     subplot(2, 3, 1); imshow(frame);
     subplot(2, 3, 2); imshow(dst_rgb1);
     subplot(2, 3, 3); imshow(dst_rgb2);
@@ -81,7 +136,7 @@ while(1)
     plot(center_col, center_row, 'r*'); hold off;
     subplot(2, 3, 6); imshow(frame); hold on;
     plot(center_col, center_row, 'r*'); hold off;
-    %}
+    
 end
 
 %land(droneObj);
