@@ -32,23 +32,6 @@ while(1)
            end
         end
     end
-<<<<<<< HEAD
-    pixelcount = 0;
-    for row = 1:rows
-        for col = 1:cols
-           if dst_hsv1 == 1
-                pixelcount = pixelcount + 1;
-           end
-        end
-    end
-    
-    if (pixelcount == 0)
-        disp("아무것도 안보이면 뒤로 가기")
-        moveback(drone,'Distance',0.3,'Speed',0.7);
-    end
-
-=======
->>>>>>> 6c5686271bd8870c9fd83de928956192effa6b95
     while (1)
         %좌우 부터
         lcnt = 0;
