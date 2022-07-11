@@ -19,11 +19,13 @@ left_cnt = 0;
 up_cnt = 0;
 down_cnt = 0;
 activeForward = 1;
+level_cnt =1 ;
 
 droneObj = ryze()
 cameraObj = camera(droneObj);
 takeoff(droneObj);
-moveup(droneObj, 'distance', 0.4);
+moveup(droneObj, 'distance', 0.3);
+moveback(droneObj, 'distance', 0.5);
 
 while(1)
     frame = snapshot(cameraObj);
@@ -40,10 +42,27 @@ while(1)
 
     bw1 = (thdown_blue(1) < src_h) & (src_h < thup_blue(1)) & (thdown_blue(2) < src_s) & (src_s < thup_blue(2)); % 파란색 검출
 
+    
+    sumLeft = sum(bw1(:, 1:cols/2), 'all');           % 좌측 절반
+    sumRight = sum(bw1(:, cols/2:end), 'all');        % 우측 절반
+
+    if(sumLeft -sumRight > 2000)
+        moveright(droneObj, 'distance', 0.5);
+        moveback(droneObj, 'Distance', 0.2);
+        continue;
+    end
+
+
     if sum(bw1, 'all') < 5000
         moveforward(droneObj, 'distance', 0.3);   %너무 멀경우 조금씩 전진
         disp('너무 멀어서 조금 전진');
+    elseif sum(bw1, 'all') <1000
+        disp('2단계 크로마키없음 우측으로 이동');
+        moveright(droneObj, 'distance', 0.5);
     end
+
+    subplot(2, 1, 1), imshow(frame);
+    subplot(2, 1, 2), imshow(bw1); 
 
     sumLeftUp = sum(bw1(1:rows/2, 1:cols/2), 'all');             % 좌상단
     sumRightUp = sum(bw1(1:rows/2, cols/2:end), 'all');          % 우상단
@@ -77,58 +96,64 @@ while(1)
         continue;
     end
 
-    bw2 = imfill(bw1,'holes');                  % 파란색 배경 안 원을 채움(내부가 채워진 사각형)        
-    for row = 1:rows
-        for col = 1:cols
-            if bw1(row, col) == bw2(row, col)
-                bw2(row, col) = 0;
-            end
-        end
-    end
-
-    if sum(bw2, 'all') > 20000
-        % Detecting Center
-        disp('파란색 크로마키 검출! 원 센터 좌표 구하기');
-        count_pixel = 0;
-        center_row = 0;
-        center_col = 0;
+    try
+        bw2 = imfill(bw1,'holes');                  % 파란색 배경 안 원을 채움(내부가 채워진 사각형)        
         for row = 1:rows
             for col = 1:cols
-                if bw2(row, col) == 1
-                    count_pixel = count_pixel + 1;
-                    center_row = center_row + row;
-                    center_col = center_col + col;    
-                end        
+                if bw1(row, col) == bw2(row, col)
+                    bw2(row, col) = 0;
+                end
             end
         end
-        center_row = center_row / count_pixel;
-        center_col = center_col / count_pixel;
-        camera_mid_row = rows / 2;
-        camera_mid_col = cols / 2;
+    
+        if sum(bw2, 'all') > 20000
+            % Detecting Center
+            disp('파란색 크로마키 검출! 원 센터 좌표 구하기');
+            count_pixel = 0;
+            center_row = 0;
+            center_col = 0;
+            for row = 1:rows
+                for col = 1:cols
+                    if bw2(row, col) == 1
+                        count_pixel = count_pixel + 1;
+                        center_row = center_row + row;
+                        center_col = center_col + col;    
+                    end        
+                end
+            end
+            center_row = center_row / count_pixel;
+            center_col = center_col / count_pixel;
+            camera_mid_row = rows / 2;
+            camera_mid_col = cols / 2;
+                
+            disp('센터 좌표 확인! 카메라 좌표와 일치화 진행중');
+            moveRow = center_row - camera_mid_row;
+            moveCol = center_col - camera_mid_col;
+                
+            right_cnt = 0;
+            left_cnt = 0;
+            up_cnt = 0;
+            down_cnt = 0;
+    
+            subplot(2, 2, 1), imshow(frame);
+            subplot(2, 2, 2), imshow(frame); hold on;
+            plot(center_col, center_row, 'r*'); hold off;
+            subplot(2, 2, 3), imshow(bw1); hold on;
+            plot(center_col, center_row, 'r*'); hold off;
+            subplot(2, 2, 4), imshow(bw2); hold on;
+            plot(center_col, center_row, 'r*'); hold off;
+        else
             
-        disp('센터 좌표 확인! 카메라 좌표와 일치화 진행중');
-        moveRow = center_row - camera_mid_row;
-        moveCol = center_col - camera_mid_col;
-            
-        right_cnt = 0;
-        left_cnt = 0;
-        up_cnt = 0;
-        down_cnt = 0;
-
-        subplot(2, 2, 1), imshow(frame);
-        subplot(2, 2, 2), imshow(frame); hold on;
-        plot(center_col, center_row, 'r*'); hold off;
-        subplot(2, 2, 3), imshow(bw1); hold on;
-        plot(center_col, center_row, 'r*'); hold off;
-        subplot(2, 2, 4), imshow(bw2); hold on;
-        plot(center_col, center_row, 'r*'); hold off;
-    else
-        disp('뒤로 드론 이동 && 컨티뉴');
-        moveback(droneObj, 'distance', 0.3);
-        continue;
-    end  
+                disp('뒤로 드론 이동 && 컨티뉴');
+                moveback(droneObj, 'distance', 0.4);
+                continue;
+                
+        end        
+        
+    
+        level_cnt=0;
           
-    try
+    
         disp('드론 센터 좌표 맞추기');
         if (-100 < moveRow && moveRow < 100) && (-100 < moveCol && moveCol < 100)
             movedown(droneObj, 'distance', 0.2);
@@ -136,47 +161,39 @@ while(1)
             if 110000 < bw2_pix_num
                 disp('링 통과 중');
                 moveforward(droneObj, 'distance', 1.1);
-                pause(1);
-                moveforward(droneObj, 'distance', 0.9);
+                disp('링 통과 중2');
+                moveforward(droneObj, 'distance', 1.0);
                 while 1
-                    disp('왈왈');
                     frame = snapshot(cameraObj);
                     if sum(frame, 'all') == 0
                         disp('frame error!');
                         continue;
                     end
-
-                    disp('여기까쥐1');
                     
                     src_hsv = rgb2hsv(frame);
                     src_h = src_hsv(:, :, 1);
                     src_s = src_hsv(:, :, 2);
                     src_v = src_hsv(:, :, 3);
 
-                    disp('여기까쥐2');
-
                     % Image Preprocessing
                     bw_red = ((thdown_red1(1) < src_h & src_h < thup_red1(1)) & (thdown_red1(2) < src_s & src_s < thup_red1(2))) ...            % 빨간색1범위 검출
                            + ((thdown_red2(1) < src_h & src_h < thup_red2(1)) & (thdown_red2(2) < src_s & src_s < thup_red2(2)));               % 빨간색2범위 검출
-                    disp('레드됨');
                     bw_purple = (thdown_purple(1) < src_h) & (src_h < thup_purple(1)) & (thdown_purple(2) < src_s) & (src_s < thup_purple(2));  % 보라색범위 검출
                     bw_green = (thdown_green(1) < src_h) & (src_h < thup_green(1)) & (thdown_green(2) < src_s) & (src_s < thup_green(2));
 
 
-                    %subplot(2, 2, 1), imshow(frame);
-                    %subplot(2, 2, 2), imshow(frame);
-                    %subplot(2, 2, 3), imshow(bw_red);
-                    %subplot(2, 2, 4), imshow(bw_purple);
+                    subplot(2, 2, 1), imshow(frame);
+                    subplot(2, 2, 2), imshow(frame);
+                    subplot(2, 2, 3), imshow(bw_red);
+                    subplot(2, 2, 4), imshow(bw_purple);
 
-                    % 빨간색 혹은 보라색 검출할 때까지 전진
-                    %sum(bw_red, 'all');
-                    disp('여기까쥐3');
-                                                            % 프로그램 종료
                     
-                    if(sum(bw_red, 'all') > 500)                       % 빨간색이 검출되면
+                    sum(bw_red, 'all')                                                           
+                    
+                    if(sum(bw_red, 'all') > 500)      
                         disp('빨간색 검출! 우회전!');
-                        turn(droneObj, deg2rad(90));                       % Turn right, 다음동작 크로마키 검출, 지난 링을 건드리지 않도록 일정거리 전진
-                        moveforward(droneObj, 'distance', 1.2);
+                        turn(droneObj, deg2rad(90));                  
+                        moveforward(droneObj, 'distance', 1.1);
                         right_cnt = 0;
                         left_cnt = 0;
                         up_cnt = 0;
@@ -188,30 +205,70 @@ while(1)
                     elseif(sum(bw_green, "all")>500)
                         disp('초록색 검출! 각도 변경!')
                         turn(droneObj, deg2rad(90));
-                        moveforward(droneObj, 'distance', 1.2);
+                        moveforward(droneObj, 'distance', 1.1);
                         turn(droneObj, deg2rad(45));
+                        moveforward(droneObj, 'distance', 0.4);
                         right_cnt = 0;
                         left_cnt = 0;
                         up_cnt = 0;
                         down_cnt = 0;
                         activeForward = 1;
                         loopBreak = 1;
+                        cnt = 0;
+                        while (1)
+                            frame = snapshot(cameraObj);
+                            hsv_img = rgb2hsv(frame);
+                            gray = hsv2gray(hsv_img);
+                            canny = edge(gray,'Canny');
+                            disp('코너함수시작')
+                            pgonCorners(canny1,4)
+                            corners = pgonCorners(canny,4);
+                            disp('코너 검출완료')
+	                        count = 0; %코너 개수 구하기
+   	                        for i = 1:size(corners)
+        	                        count = count + 1;
+    	                        end
+	                        while (1)
+		                        if (count ~= 4)
+                                    disp('4개 미검출')
+			                        moveback(droneObj,'Distance',0.2);
+			                        break;
+		                        end
+		                        if( corners(1, 1) - corners(2, 1) > 2) %최대한 작게 움직이게 만듦
+			                        disp('오른쪽 각도회전')
+                                    turn(droneObj,deg2rad(-3));
+			                        continue;
+		                        elseif( corners(1 ,1) - corners(2, 1) < -2)
+                                    disp('왼쪽 각도회전')
+			                        turn(droneObj,deg2rad(3));
+			                        continue;
+		                        else
+			                        disp("correct")
+                                    cnt = cnt + 1;
+			                        break;
+		                        end
+                                end
+                            if (cnt == 1)
+                                break;
+                            end
+                        end
                         break;
-
-                    elseif (sum(bw_purple, 'all') > 1000)                          % 보라색이 검출되면
+          
+                    elseif (sum(bw_purple, 'all') > 500)     
                         disp('보라색 검출! 착지!');
-                        land(droneObj);                                     % Landing
+                        land(droneObj);                                    
                         return; 
                         
                     else
                         disp('표식 없음. 표식 찾아 드론 이동');
                         if down_cnt < 1
                             down_cnt = down_cnt + 1;
+                            moveback(droneObj, 'distance', 0.2);
                             movedown(droneObj, 'distance', 0.2);
                             continue;
                         elseif up_cnt < 1
                             up_cnt = up_cnt + 1;
-                            moveup(droneObj, 'distance', 0.4);
+                            moveup(droneObj, 'distance', 0.3);
                             continue;
                         elseif left_cnt < 1
                             left_cnt = left_cnt + 1;
@@ -219,7 +276,7 @@ while(1)
                             continue;
                         elseif right_cnt < 1
                             right_cnt = right_cnt + 1;
-                            moveright(droneObj, 'distance', 0.4);
+                            moveright(droneObj, 'distance', 0.3);
                             continue;
                         else
                             moveup(droneObj, 'distance', 0.2);
@@ -257,23 +314,18 @@ while(1)
         end
 
         disp('원 검출 완료');
-        %{
-        subplot(2, 2, 1), imshow(frame);
-        subplot(2, 2, 2), imshow(frame); hold on;
-        plot(center_col, center_row, 'r*'); hold off;
-        subplot(2, 2, 3), imshow(bw1); hold on;
-        plot(center_col, center_row, 'r*'); hold off;
-        subplot(2, 2, 4), imshow(bw2); hold on;
-        plot(center_col, center_row, 'r*'); hold off;
-        %}
         clear center_col;
         clear center_row;
+        clear bw2;
    catch exception
         disp('원 검출 안됨 예외발생.');
+        moveback(droneObj, 'distance', 0.5);
         subplot(2, 2, 1), imshow(frame);
         subplot(2, 2, 2), imshow(frame);
         subplot(2, 2, 3), imshow(bw1);
     end
-    pause(1);
     
+    disp('while문 도는중');
 end
+
+disp('코드 종료');
