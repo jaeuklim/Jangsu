@@ -7,8 +7,8 @@ thdown_red1 = [0, 0.65, 0.25];
 thup_red1 = [0.025, 1, 1];
 thdown_red2 = [0.975, 0.65, 0.25];
 thup_red2 = [1, 1, 1];
-thdown_green = [0.275, 0.5, 0.25];
-thup_green = [0.325, 1, 1];
+thdown_green = [0.25, 40/240, 80/240];         
+thup_green = [0.40, 1, 1];
 thdown_purple = [0.725, 0.25, 0.25];
 thup_purple = [0.85, 1, 1];
 
@@ -37,7 +37,7 @@ while(1)
 
     bw1 = (thdown_blue(1) < src_h) & (src_h < thup_blue(1)) & (thdown_blue(2) < src_s) & (src_s < thup_blue(2)); % 파란색 검출
 
-    if sum(bw1, 'all') < 15000
+    if sum(bw1, 'all') < 12000
         moveforward(droneObj, 'distance', 0.3);   %너무 멀경우 조금씩 전진
         disp('너무 멀어서 조금 전진');   
     end
@@ -119,7 +119,7 @@ while(1)
         if (-100 < moveRow && moveRow < 100) && (-100 < moveCol && moveCol < 100) %픽셀 범위 안에 들어오면
             movedown(droneObj, 'distance', 0.2); %카메라가 아래에 달려 있으므로 내려줌
             bw2_pix_num = sum(bw2, 'all');
-            if 110000 < bw2_pix_num %원이 가까울 때
+            if 100000 < bw2_pix_num %원이 가까울 때
                 disp('링 통과 중');
                 moveforward(droneObj, 'distance', 1.1);
                 pause(1); %여기서 중심 한 번 더 맞추기엔 아래로 내림
@@ -153,7 +153,7 @@ while(1)
                     if(sum(bw_red, 'all') > 500)                       % 빨간색이 검출되면
                         disp('빨간색 검출! 우회전!');
                         turn(droneObj, deg2rad(90));                       % Turn right, 다음동작 크로마키 검출, 지난 링을 건드리지 않도록 일정거리 전진
-                        moveforward(droneObj, 'distance', 1.2);
+                        moveforward(droneObj, 'distance', 1.5);
                         right_cnt = 0;
                         left_cnt = 0;
                         up_cnt = 0;
@@ -170,34 +170,40 @@ while(1)
                         up_cnt = 0;
                         down_cnt = 0;
                         loopfirst = 1;
+                        cnt = 0;
                         while (1)
                             frame = snapshow(cameraObj);
                             gray = hsv2gray(frame);
                             canny = edge(gray,'Canny');
                             corners = pgonCorners(canny,4);
 	                        count = 0; %코너 개수 구하기
-   	                         for i = 1:size(corners)
-        	                        count = count + 1;
-    	                        end
+   	                        for i = 1:size(corners)
+                                count = count + 1;
+                            end
 	                        while (1)
 		                        if (count ~= 4)
 			                        moveback(drone,'Distance',0.2);
 			                        break;
 		                        end
 		                        if( corners(1, 1) - corners(2, 1) > 2) %최대한 작게 움직이게 만듦
-			                        turn(drone,deg2rad(-3);
+			                        turn(droneObj,deg2rad(-3));
 			                        continue;
-		                        elseif( corners(2 ,1) - corners(2, 1) < -2)
-			                        turn(drone,deg2rad(3));
+		                        elseif( corners(1 ,1) - corners(2, 1) < -2)
+			                        turn(droneObj,deg2rad(3));
 			                        continue;
 		                        else
 			                        disp("correct")
+                                    cnt = cnt + 1 ;
 			                        break;
 		                        end
-	                        end
+                            end
+
+                            if( cnt == 1)
+                                break;
+                            end
                         end
                         break;
-                    elseif (sum(bw_purple, 'all') > 1000)                          % 보라색이 검출되면
+                    elseif (sum(bw_purple, 'all') > 500)                          % 보라색이 검출되면
                         disp('보라색 검출! 착지!');
                         land(droneObj);                                     % Landing
                         return;                                             % 프로그램 종료
