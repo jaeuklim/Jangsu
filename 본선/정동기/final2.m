@@ -21,7 +21,7 @@ greencnt = 0; %이거 바꿈
 droneObj = ryze()
 cameraObj = camera(droneObj);
 takeoff(droneObj); 
-moveup(droneObj, 'distance', 0.4); 
+moveup(droneObj, 'distance', 0.4);
 
 while(1)
     frame = snapshot(cameraObj); 
@@ -109,7 +109,7 @@ while(1)
         down_cnt = 0;
 
         if (greencnt == 1)
-             frame = snapshow(cameraObj);
+             frame = snapshot(cameraObj);
              hsv_img = rgb2hsv(frame);
              gray = im2gray(hsv_img);
              canny = edge(gray,'Canny');
@@ -120,7 +120,7 @@ while(1)
              end
 	         while (1)
 		        if (count ~= 4)
-			        moveback(drone,'Distance',0.2);
+			        moveback(droneObj,'Distance',0.2);
 			        break;
 		        end
 		        if( corners(1, 1) - corners(2, 1) > 2) %최대한 작게 움직이게 만듦
@@ -131,6 +131,7 @@ while(1)
 			        continue;
 		        else
 			        disp("correct")
+                    greencnt = 0;
 			        break;
 		        end
             end
