@@ -14,7 +14,6 @@ thup_green = [0.40, 1, 1];
 thdown_purple = [0.725, 0.25, 0.25];
 thup_purple = [0.85, 1, 1];
 
-activeForward = 1;
 level_cnt =1 ;
 
 droneObj = ryze()
@@ -44,25 +43,25 @@ while(1)
     sumLeft = sum(bw1(:, 1:cols/2), 'all');           % 좌측 절반
     sumRight = sum(bw1(:, cols/2:end), 'all');        % 우측 절반
 
-    if(sumLeft == 0 && sumRight == 0)
+    if(sumUp == 0 && sumDown== 0 && sumLeft == 0 && sumRight == 0)
         disp('크로마키없음 우측으로 이동');
         moveright(droneObj, 'distance', 0.5);
-        %moveback(droneObj, 'distance', 0.2);        
+        moveback(droneObj, 'distance', 0.2);        
         continue;
-    elseif(sumRight > 1000 && sumLeft==0)
+    elseif(sumRight > 100 && sumLeft==0)
         disp('우측크로마키만 발견 우측으로 이동');
         moveright(droneObj, 'distance', 0.3);
-        %moveback(droneObj, 'distance', 0.2);
-    elseif(sumLeft > 1000 && sumRight == 0) 
+        continue;
+    elseif(sumLeft > 100 && sumRight == 0) 
         disp('좌측크로마키만 발견 좌측으로 이동');         
         moveleft(droneObj, 'distance', 0.2);
-        %moveback(droneObj, 'distance', 0.2);
-    else
-        if(sumUp == 0)
-            movedown(droneObj, 'distance', 0.3);
-        elseif(sumDown==0)
-            moveup(droneObj, 'distance', 0.3);
-        end
+        continue;
+    elseif(sumUp > 100 && sumDown == 0)
+        moveup(droneObj, 'distance', 0.3);
+        continue;
+    elseif(sumDown > 100 && sumUp == 0)
+        movedown(droneObj, 'distance', 0.3);
+        continue;
     end
 
     subplot(2, 1, 1), imshow(frame);
