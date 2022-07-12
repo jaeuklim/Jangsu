@@ -139,10 +139,10 @@ while(1)
         disp('드론 센터 좌표 맞추기');
         if (-100 < moveRow && moveRow < 100) && (-100 < moveCol && moveCol < 100)
             movedown(droneObj, 'distance', 0.2);
-            bw2_pix_num = sum(bw2, 'all')
-            if bw2_pix_num >85000
+            bw2_pix_num = sum(bw2, 'all');
+            if bw2_pix_num > 90000
                 disp('링 통과 중');
-                moveforward(droneObj, 'distance', 1.0);
+                moveforward(droneObj, 'distance', 0.9);
                 moveforward(droneObj, 'distance', 0.9);
                 
                 while 1
@@ -175,7 +175,7 @@ while(1)
                     green = sum(bw_green, "all")
                     purple = sum(bw_purple, 'all')
                     
-                    if(sum(bw_red, 'all') > 2000 && level_cnt == 3) %수정: 1단계      
+                    if(sum(bw_red, 'all') > 2000 && level_cnt == 1) %수정: 1단계      
                         disp('빨간색 검출! 우회전!');
                         sum(bw_red, 'all')
                         level_cnt = 2; % 이부분 수정
@@ -258,7 +258,7 @@ while(1)
                             end
                         end
                         break;
-                    elseif (sum(bw_purple, 'all') > 3000 && level_cnt == 1)     %수정
+                    elseif (sum(bw_purple, 'all') > 3000 && level_cnt == 3)     %수정
                         sum(bw_purple, 'all')
                         disp('보라색 검출! 착지!');
                         land(droneObj);                                  
@@ -283,12 +283,12 @@ while(1)
                 end
                 
 
-            elseif (bw2_pix_num < 85000 && bw2_pix_num > 40000)
+            elseif (bw2_pix_num < 90000)
                 disp('원에 조금씩 접근중');
-                moveforward(droneObj, 'distance', 0.3);             % 맵에 따라서 1m단위로 링을 배치한다면 0.5, 아니라면 0.2 or 0.25
-            elseif (bw2_pix_num < 40000)
-                disp('원에 1m 접근');
-                moveforward(droneObj, 'distance', 1.0);
+                moveforward(droneObj, 'distance', 0.4);             % 맵에 따라서 1m단위로 링을 배치한다면 0.5, 아니라면 0.2 or 0.25
+            elseif (bw2_pix_num < 50000)
+                moveforward(droneObj, 'distance', 0.4); 
+
             end      
             
         elseif moveRow < -100
