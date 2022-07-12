@@ -38,40 +38,39 @@ while(1)
     src_s = src_hsv(:,:,2);
     src_v = src_hsv(:,:,3);
     [rows, cols, channels] = size(src_hsv); 
-
+    
+    bw1 = (thdown_blue(1) < src_h) & (src_h < thup_blue(1)) & (thdown_blue(2) < src_s) & (src_s < thup_blue(2)); % 파란색 검출
 
     sumUp = sum(bw1(1:rows/2, :), 'all');             % 상단 절반
     sumDown = sum(bw1(rows/2:end, :), 'all');         % 하단 절반
     sumLeft = sum(bw1(:, 1:cols/2), 'all');           % 좌측 절반
     sumRight = sum(bw1(:, cols/2:end), 'all');        % 우측 절반
 
-    if(sumLeft == 0 && sumRight == 0 && level_cnt == 2) % 수정
-        disp('크로마키없음 우측으로 이동');
-        moveright(droneObj, 'distance', 0.5);       
-        continue;
-    elseif(sumRight > 1000 && sumLeft==0)
-        disp('우측크로마키만 발견 우측으로 이동');
-        moveright(droneObj, 'distance', 0.3);
-    elseif(sumLeft > 1000 && sumRight == 0) 
-        disp('좌측크로마키만 발견 좌측으로 이동');         
-        moveleft(droneObj, 'distance', 0.2);
-    else
-        if(sumUp == 0)
-            movedown(droneObj, 'distance', 0.3);
-        elseif(sumDown==0)
-            moveup(droneObj, 'distance', 0.3);
+    
+    if (level_cnt ~= 1)
+        if(sumLeft == 0 && sumRight == 0 && level_cnt == 2) % 수정
+            disp('크로마키없음 우측으로 이동');
+            moveright(droneObj, 'distance', 0.5);       
+            continue;
+        elseif(sumRight > 1000 && sumLeft==0)
+            disp('우측크로마키만 발견 우측으로 이동');
+            moveright(droneObj, 'distance', 0.3);
+        elseif(sumLeft > 1000 && sumRight == 0) 
+            disp('좌측크로마키만 발견 좌측으로 이동');         
+            moveleft(droneObj, 'distance', 0.2);
+        else
+            if(sumUp == 0)
+                movedown(droneObj, 'distance', 0.3);
+            elseif(sumDown==0)
+                moveup(droneObj, 'distance', 0.3);
+            end
         end
     end
 
-    bw1 = (thdown_blue(1) < src_h) & (src_h < thup_blue(1)) & (thdown_blue(2) < src_s) & (src_s < thup_blue(2)); % 파란색 검출
-
     if (level_cnt == 1)
-        if sum(bw1, 'all') < 5000
-            moveforward(droneObj, 'distance', 0.3);   %너무 멀경우 조금씩 전진
+        if sum(bw1, 'all') < 12000
+            moveforward(droneObj, 'distance', 0.5);   %너무 멀경우 조금씩 전진
             disp('너무 멀어서 조금 전진');
-        elseif sum(bw1, 'all') <1000
-            disp('2단계 크로마키없음 우측으로 이동');
-            moveright(droneObj, 'distance', 0.5);
         end
     end
 
