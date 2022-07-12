@@ -19,6 +19,7 @@ left_cnt = 0;
 up_cnt = 0;
 down_cnt = 0;
 level_cnt =1 ;
+long = 0;
 
 droneObj = ryze()
 cameraObj = camera(droneObj);
@@ -54,8 +55,8 @@ while(1)
             continue;
         elseif(sumLeft == 0 && sumRight == 0 && level_cnt == 3)
             disp('3단계 크로마키없음 위&뒤로 이동');
-            moveup(droneObj, 'distance', 0.3);
-            moveback(droneObj, 'distance', 0.2);
+            moveup(droneObj, 'distance', 0.2);
+            moveback(droneObj, 'distance', 0.3);
             continue;
         elseif(sumRight > 1000 && sumLeft==0)
             disp('우측크로마키만 발견 우측으로 이동');
@@ -78,10 +79,13 @@ while(1)
         end
     end
 
-    if (level_cnt == 1)
-        if sum(bw1, 'all') < 12000
-            moveforward(droneObj, 'distance', 0.5);   %너무 멀경우 조금씩 전진
+    blue = sum(bw1, 'all')
+
+    if (level_cnt == 1 && long == 0)
+        if sum(bw1, 'all') < 20000
+            moveforward(droneObj, 'distance', 1.0);   %너무 멀경우 조금씩 전진
             disp('너무 멀어서 조금 전진');
+            long = long + 1;
         end
     end
 
@@ -148,7 +152,9 @@ while(1)
             bw2_pix_num = sum(bw2, 'all');
             if 100000 < bw2_pix_num
                 disp('링 통과 중');
-                moveforward(droneObj, 'distance', 1.5);
+                moveforward(droneObj, 'distance', 0.8);
+                pause(1);
+                moveforward(droneObj, 'distance', 0.8);
                 
                 while 1
                     disp('표식검출작업 시작');
