@@ -153,7 +153,7 @@ while(1)
             disp('그레이 변환완료');
             canny = edge(gray,'Canny');
             disp('코너함수시작');
-            corners = pgonCorners(canny,4);
+            corners = pgonCorners(canny,4);w
             disp('코너 검출완료');
 	        count = 0; %코너 개수 구하기
    	        for i = 1:size(corners)
@@ -164,10 +164,10 @@ while(1)
             plot(corners(:,2),corners(:,1),'yo','MarkerFaceColor','r',...
             'MarkerSize',12,'LineWidth',2);
             while (1)
-                if ((corners(1,1) - corners(2,1)) > 20 )
+                if (corners(1,1) - corners(2,1) >2 || corners(4,1) - corners(3,1) > 2 )
                     disp("왼쪽 각도 회전")
                     turn(droneObj,deg2rad(-3));
-                elseif ((corners(1,1) - corners(2,1))< 20)
+                elseif (corners(1,1) - corners(2,1)<-2 || corners(4,1) - corners(3,1) < 2)
                     disp("오른쪽 각도 회전")
                     turn(droneObj,deg2rad(3));
                 else
@@ -279,18 +279,18 @@ while(1)
                 end
                 
 
-            elseif (bw2_pix_num > 65000)
+            elseif (bw2_pix_num > 70000)
                 disp('원에 좀 더 접근중');
                 moveforward(droneObj, 'distance', 0.2); % 맵에 따라서 1m단위로 링을 배치한다면 0.5, 아니라면 0.2 or 0.25
-            elseif (bw2_pix_num > 55000)
+            elseif (bw2_pix_num > 40000)
                 disp("원에 조금씩 접근중")
-                moveforward(droneObj, 'Distance', 0.4);
-            elseif (bw2_pix_num >40000)
+                moveforward(droneObj, 'Distance', 0.3);
+            elseif (bw2_pix_num >0000)
                 disp("원에 좀 많이 접근");
-                moveforward(droneObj,'Distance',0.7)
+                moveforward(droneObj,'Distance',0.5)
             else
                 disp('원에 완전 많이 접근');
-                moveforward(droneObj, 'distance', 1);
+                moveforward(droneObj, 'distance', 0.7);
             end      
             
         elseif moveRow < -80
