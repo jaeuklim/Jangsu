@@ -65,3 +65,26 @@ thup_green = [0.40, 1, 1];
 thdown_purple = [0.725, 0.25, 0.25];
 thup_purple = [0.85, 1, 1];
 ```
+* 드론 캠을 통해 들어오는 실시간 영상을 frame 단위로 저장해 hsv로 변환후 처리.
+위에서 변수에 받은 색깔을 hsv로 변경해주었으니 거기에 맞추서 드론이 찍은 사진을 rgb2hsv() 함수를 이용하여 바꾸어 주었다. 만약 사진이 찍히지 않았다면 다시 찍을 수 있도록하여 에러를 예방하였다.
+```matlab
+frame = snapshot(cameraObj);
+    if sum(frame, 'all') == 0
+        disp('frame error!');
+        continue;
+    end
+
+    src_hsv = rgb2hsv(frame);
+    src_h = src_hsv(:,:,1);
+    src_s = src_hsv(:,:,2);
+    src_v = src_hsv(:,:,3);
+    [rows, cols, channels] = size(src_hsv); 
+```
+2. 전처리한 크로마키의 분포가 상하좌우에 모두 분포하도록 드론 제어
+* 크로마키 임계값 범위에 해당하는 이미지만 따로 저장하여 해당 임계값(blue)에 해당하는 픽셀들 검출
+드론으로 찍은 사진을 hsv로 변환을 하였으니 위에서 변수에 넣어준 천과 표식에 대한 임계값 안에 들어갈 수 있도록 if문을 이용하여 h,s,v값이 임계값 내부에 들어갈 수 있도록 하여주었다.
+```matlab
+bw1 = (thdown_blue(1) < src_h) & (src_h < thup_blue(1)) & (thdown_blue(2) < src_s) & (src_s < thup_blue(2)); % 파란색 검출
+```
+* frame의 4분면에 크로마키가 존재하도록 조금씩 드론 이동
+여기서 4분면은 (상, 하, 좌, 우)
