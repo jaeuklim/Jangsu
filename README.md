@@ -87,4 +87,71 @@ frame = snapshot(cameraObj);
 bw1 = (thdown_blue(1) < src_h) & (src_h < thup_blue(1)) & (thdown_blue(2) < src_s) & (src_s < thup_blue(2)); % 파란색 검출
 ```
 * frame의 4분면에 크로마키가 존재하도록 조금씩 드론 이동
-여기서 4분면은 (상, 하, 좌, 우)
+여기서 4분면은 (상, 하, 좌, 우)를 뜻함
+frame의 상, 하, 좌, 우에 임계값(blue)의 픽셀이 얼마나 있는지 파악한 후 그 합을 변수에 저장
+if문을 사용하여 각 단계별, 상황별로 나눔
+임계값이 발견된 곳이 존재한다면, 발견된 방향으로 드론을 움직임
+(만약, 우측에 임계값 픽셀이 존재한다면 우측으로 이동)
+
+```matlab
+    sumUp = sum(bw1(1:rows/2, :), 'all');             % 상단 절반
+    sumDown = sum(bw1(rows/2:end, :), 'all');         % 하단 절반
+    sumLeft = sum(bw1(:, 1:cols/2), 'all');           % 좌측 절반
+    sumRight = sum(bw1(:, cols/2:end), 'all');        % 우측 절반
+
+    
+    if (level_cnt ~= 1)
+        if(sumLeft == 0 && sumRight == 0 && level_cnt == 2) % 수정
+            disp('2단계 크로마키없음 우측으로 이동');
+            moveright(droneObj, 'distance', 0.6);       
+            continue;
+        elseif(sumLeft == 0 && sumRight == 0 && level_cnt == 3)
+            disp('3단계 크로마키없음 위&뒤로 이동');
+            moveup(droneObj, 'distance', 0.3);
+            moveback(droneObj, 'distance', 0.3);
+            continue;
+        elseif(sumRight > 1000 && sumLeft==0)
+            disp('우측크로마키만 발견 우측으로 이동');
+            moveright(droneObj, 'distance', 0.3);
+            continue;
+        elseif(sumLeft > 1000 && sumRight == 0) 
+            disp('좌측크로마키만 발견 좌측으로 이동');         
+            moveleft(droneObj, 'distance', 0.3);
+            continue;
+        else
+            if(sumUp == 0)
+                disp('아래크로마키만 발견 아래로 이동');
+                movedown(droneObj, 'distance', 0.3);
+                continue;
+            elseif(sumDown==0)
+                disp('위크로마키만 발견 위로 이동');
+                moveup(droneObj, 'distance', 0.3);
+                continue;
+            end
+        end
+    end
+
+```
+
+
+
+3.크로마키 속 링 추출
+* 4분면에 크로마키가 존재하면 imfill 함수를 통해 링 검출 및 원 채우기
+
+```matlab
+bw2 = imfill(bw1,'holes');
+```
+
+* 만약 원이 검출 되지 않으면 드론과 크로마키의 거리조절을 통해 최소 거리로 이동
+원이 검출 되지 않은 상황을 원과 드론의 거리가 너무 가깝다고 가정한 후 뒤로 이동 후, 드론 카메라의 렌즈 위치를 고려해 위로 이동
+
+```matlab
+circle_cnt = circle_cnt + 1;
+            disp('원 미검출, 뒤로 드론 이동');
+            moveback(droneObj, 'distance', 0.3);
+            if(circle_cnt <= 2) %수정
+                moveup(droneObj, 'Distance', 0.2);
+            end
+            continue;    
+
+```
