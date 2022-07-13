@@ -18,7 +18,7 @@ right_cnt = 0;
 left_cnt = 0;
 up_cnt = 0;
 down_cnt = 0;
-level_cnt =1;
+level_cnt =2;
 circle_cnt = 0; % 수정
 
 droneObj = ryze()
@@ -163,19 +163,19 @@ while(1)
         	    count = count + 1;
             end
             while (1)
-                if ((corners(1,1) - corners(2,1)) > 30 )
+                if ((corners(1,1) - corners(2,1)) > 10 )
                     a= corners(1,1)
                     b =corners(2,1)
                     disp("왼쪽 각도 회전")
                     turn(droneObj,deg2rad(-3));
                     break;
-                elseif ((corners(1,1) - corners(2,1))< -30)
+                elseif ((corners(1,1) - corners(2,1))< -10)
                     a= corners(1,1)
                     b =corners(2,1)
                     disp("오른쪽 각도 회전")
                     turn(droneObj,deg2rad(3));
                     break;
-                elseif (abs(corners(1,1) - corners(2,1)) <30)
+                elseif (abs(corners(1,1) - corners(2,1)) <10)
                     disp("correct")
                     cnt = cnt + 1;
                     break;
@@ -187,7 +187,7 @@ while(1)
         circle_cnt = circle_cnt + 1;
             disp('원 미검출, 뒤로 드론 이동');
             moveback(droneObj, 'distance', 0.3);
-            if(circle_cnt <= 2) %수정
+            if(circle_cnt <= 1) %수정
                 moveup(droneObj, 'Distance', 0.2);
             end
             continue;                
@@ -233,7 +233,7 @@ while(1)
                     green = sum(bw_green, "all")
                     purple = sum(bw_purple, 'all')
                     
-                    if(sum(bw_green, 'all') > 2000 && level_cnt == 1) %수정: 1단계      
+                    if(sum(bw_purple, 'all') > 2000 && level_cnt == 1) %수정: 1단계      
                         disp('초록색 검출! 우회전!');
                         sum(bw_red, 'all')
                         level_cnt = 2; % 이부분 수정
@@ -242,7 +242,7 @@ while(1)
                         loopBreak = 1;
                         circle_cnt = 0;
                         break;                        
-                    elseif(sum(bw_purple, "all")>2000 && level_cnt == 2) %수정
+                    elseif(sum(bw_green, "all")>2000 && level_cnt == 2) %수정
                         disp('보라색 검출! 각도 변경!')
                         sum(bw_green, "all")
                         level_cnt = 3; %수정
@@ -258,10 +258,10 @@ while(1)
                         sum(bw_purple, 'all')
                         disp('빨간색 검출! 착지!');
                         land(droneObj);                                  
-                    elseif(level_cnt == 1 && sum(bw_green, "all") == 0)
+                    elseif(level_cnt == 1 && sum(bw_purple, "all") == 0)
                         disp("초록 표식 검출 불가!! 조금뒤로")
                         moveback(droneObj, 'Distance',0.2);
-                    elseif(level_cnt == 2 && sum(bw_purple, "all")==0)
+                    elseif(level_cnt == 2 && sum(bw_green, "all")==0)
                         disp("보라 표식 검출 불가!! 조금뒤로")
                         moveback(droneObj, 'Distance',0.2);
                     elseif(level_cnt == 3 && sum(bw_red, "all")==0)
