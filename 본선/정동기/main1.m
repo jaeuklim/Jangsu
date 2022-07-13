@@ -91,7 +91,7 @@ while(1)
         end
     end
     
-    if (sum(bw2, 'all') > 10000 && circle_cnt == 0) %수정
+    if (sum(bw2, 'all') > 10000 ) %수정
         % Detecting Center
         disp('원검출! 원 센터 좌표 구하기');
         count_pixel = 0;
@@ -124,6 +124,7 @@ while(1)
         plot(center_col, center_row, 'r*'); hold off;
         circle_cnt = 1; % 수정
         %*********************************************여기에 추가함
+        if(level_cnt == 3)
         while (1)
             frame1 = snapshot(cameraObj);
             if sum(frame1, 'all') == 0
@@ -152,17 +153,8 @@ while(1)
             disp('그레이 변환완료');
             canny = edge(gray,'Canny');
             disp('코너함수시작');
-            %수정
-            if(dst_hsv1(5,5) == 0 && dst_hsv1(5,715) == 0 && dst_hsv1(955,5) == 0 && dst_hsv1(955,715) == 0)
-                hsvcount = hsvcount + 1;
-            end
-            if (hasvcount == 4)
-                corners = pgonCorners(canny,4);
-                disp('코너 검출완료');
-            else
-                moveback(droneObj,'Distance',0.2);
-                continue;
-            end
+            corners = pgonCorners(canny,4);
+            disp('코너 검출완료');
 	        count = 0; %코너 개수 구하기
    	        for i = 1:size(corners)
         	    count = count + 1;
@@ -190,10 +182,14 @@ while(1)
                 break;
             end
         end
-    elseif (circle_cnt == 0)
+        end
+    else
+        circle_cnt = circle_cnt + 1;
             disp('원 미검출, 뒤로 드론 이동');
             moveback(droneObj, 'distance', 0.3);
-            moveup(droneObj, 'Distance', 0.2);
+            if(circle_cnt <= 2) %수정
+                moveup(droneObj, 'Distance', 0.2);
+            end
             continue;                
     end
 
@@ -202,9 +198,9 @@ while(1)
         if (-100 < moveRow && moveRow < 100) && (-100 < moveCol && moveCol < 100)
             movedown(droneObj, 'distance', 0.2);
             bw2_pix_num = sum(bw2, 'all')
-            if bw2_pix_num >100000
+            if bw2_pix_num >85000
                 disp('링 통과 중');
-                moveforward(droneObj, 'distance', 0.9);
+                moveforward(droneObj, 'distance', 1);
                 moveforward(droneObj, 'distance', 0.9);
                 
                 while 1
@@ -237,16 +233,16 @@ while(1)
                     green = sum(bw_green, "all")
                     purple = sum(bw_purple, 'all')
                     
-                    if(sum(bw_red, 'all') > 2000 && level_cnt == 3) %수정: 1단계      
+                    if(sum(bw_red, 'all') > 2000 && level_cnt == 1) %수정: 1단계      
                         disp('빨간색 검출! 우회전!');
                         sum(bw_red, 'all')
                         level_cnt = 2; % 이부분 수정
                         turn(droneObj, deg2rad(90));                  
                         moveforward(droneObj, 'distance', 1.1);
                         loopBreak = 1;
-                        circle_cnt = 0; %수정
+                        circle_cnt = 0;
                         break;                        
-                    elseif(sum(bw_green, "all")>3200 && level_cnt == 2) %수정
+                    elseif(sum(bw_green, "all")>2000 && level_cnt == 2) %수정
                         disp('초록색 검출! 각도 변경!')
                         sum(bw_green, "all")
                         level_cnt = 3; %수정
@@ -256,10 +252,10 @@ while(1)
                         moveforward(droneObj, 'distance', 0.4);
                         activeForward = 1;
                         loopBreak = 1;
+                        circle_cnt = 0;
                         cnt = 0;
-                        circle_cnt = 0; % 수정
                         break;
-                    elseif (sum(bw_purple, 'all') > 3000 && level_cnt == 1)     %수정
+                    elseif (sum(bw_purple, 'all') > 2000 && level_cnt == 3)     %수정
                         sum(bw_purple, 'all')
                         disp('보라색 검출! 착지!');
                         land(droneObj);                                  
@@ -290,7 +286,7 @@ while(1)
             elseif (bw2_pix_num > 40000)
                 disp("원에 조금씩 접근중")
                 moveforward(droneObj, 'Distance', 0.4);
-            elseif (bw2_pix_num < 40000)
+            elseif (bw2_pix_num < 10000)
                 disp('원에 1m 접근');
                 moveforward(droneObj, 'distance', 1.0);
             end      
