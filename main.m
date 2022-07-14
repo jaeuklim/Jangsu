@@ -18,7 +18,7 @@ right_cnt = 0;
 left_cnt = 0;
 up_cnt = 0;
 down_cnt = 0;
-level_cnt =2;
+level_cnt =1;
 circle_cnt = 0; % 수정
 
 droneObj = ryze()
@@ -50,29 +50,29 @@ while(1)
     if (level_cnt ~= 1)
         if(sumLeft == 0 && sumRight == 0 && level_cnt == 2) % 수정
             disp('2단계 크로마키없음 우측으로 이동');
-            moveright(droneObj, 'distance', 0.6,'Speed',0.8);       
+            moveright(droneObj, 'distance', 0.6,'Speed',0.6);       
             continue;
         elseif(sumLeft == 0 && sumRight == 0 && level_cnt == 3)
             disp('3단계 크로마키없음 위&뒤로 이동');
-            moveup(droneObj, 'distance', 0.2,'Speed',0.8);
-            moveback(droneObj, 'distance', 0.3,'Speed',0.8);
+            moveup(droneObj, 'distance', 0.2,'Speed',0.6);
+            moveback(droneObj, 'distance', 0.3,'Speed',0.6);
             continue;
         elseif(sumRight > 1000 && sumLeft==0)
             disp('우측크로마키만 발견 우측으로 이동');
-            moveright(droneObj, 'distance', 0.3,'Speed',0.8);
+            moveright(droneObj, 'distance', 0.3,'Speed',0.6);
             continue;
         elseif(sumLeft > 1000 && sumRight == 0) 
             disp('좌측크로마키만 발견 좌측으로 이동');         
-            moveleft(droneObj, 'distance', 0.3,'Speed',0.8);
+            moveleft(droneObj, 'distance', 0.3,'Speed',0.6);
             continue;
         else
             if(sumUp == 0)
                 disp('아래크로마키만 발견 아래로 이동');
-                movedown(droneObj, 'distance', 0.3,'Speed',0.8);
+                movedown(droneObj, 'distance', 0.3,'Speed',0.6);
                 continue;
             elseif(sumDown==0)
                 disp('위크로마키만 발견 위로 이동');
-                moveup(droneObj, 'distance', 0.3,'Speed',0.8);
+                moveup(droneObj, 'distance', 0.3,'Speed',0.6);
                 continue;
             end
         end
@@ -91,7 +91,7 @@ while(1)
         end
     end
     
-    if (sum(bw2, 'all') > 10000 ) %수정
+    if (sum(bw2, 'all') > 5000 ) %수정
         % Detecting Center
         disp('원검출! 원 센터 좌표 구하기');
         count_pixel = 0;
@@ -197,14 +197,17 @@ while(1)
         disp('드론 센터 좌표 맞추기');
         if (-50 < moveRow && moveRow < 50) && (-50 < moveCol && moveCol < 50)
             movedown(droneObj, 'distance', 0.2);
-            bw2_pix_num = sum(bw2, 'all')
-            if bw2_pix_num >85000                
+            bw2_pix_num = sum(bw2, 'all');
+            if bw2_pix_num >81000                
                 disp('링 통과 중');       
-                moveforward(droneObj, 'distance', 1,'Speed',0.8);
+                moveforward(droneObj, 'distance', 1,'Speed',0.6);
                 if(level_cnt<=2)
-                    moveforward(droneObj, 'distance', 0.9,'Speed',0.8);
+                    if(bw2_pix_num<150000)
+                        movedown(droneObj, 'distance', 0.2);
+                    end
+                    moveforward(droneObj, 'distance', 0.9,'Speed',0.6);                    
                 else
-                    moveforward(droneObj, 'distance', 0.7,'Speed',0.8);
+                    moveforward(droneObj, 'distance', 0.7,'Speed',0.6);
                 end
                 
                 while 1
@@ -237,23 +240,23 @@ while(1)
                     green = sum(bw_green, "all")
                     purple = sum(bw_purple, 'all')
                     
-                    if(sum(bw_purple, 'all') > 2000 && level_cnt == 1) %수정: 1단계      
-                        disp('보라색 검출! 우회전!');
-                        sum(bw_purple, 'all')
+                    if(sum(bw_green, 'all') > 2000 && level_cnt == 1) %수정: 1단계      
+                        disp('초록색 검출! 우회전!');
+                        sum(bw_green, 'all')
                         level_cnt = 2; % 이부분 수정
                         turn(droneObj, deg2rad(90));                  
-                        moveforward(droneObj, 'distance', 1.3,'Speed',0.8);
+                        moveforward(droneObj, 'distance', 1.3,'Speed',0.6);
                         loopBreak = 1;
                         circle_cnt = 0;
                         break;                        
-                    elseif(sum(bw_green, "all")>2000 && level_cnt == 2) %수정
-                        disp('초록색 검출! 각도 변경!')
-                        sum(bw_green, "all")
+                    elseif(sum(bw_purple, "all")>2000 && level_cnt == 2) %수정
+                        disp('보라색 검출! 각도 변경!')
+                        sum(bw_purple, "all")
                         level_cnt = 3; %수정
                         turn(droneObj, deg2rad(90));
-                        moveforward(droneObj, 'distance', 1.3,'Speed',0.8);
+                        moveforward(droneObj, 'distance', 1.3,'Speed',0.6);
                         turn(droneObj, deg2rad(45));
-                        moveforward(droneObj, 'distance', 0.4,'Speed',0.8);
+                        moveforward(droneObj, 'distance', 0.3,'Speed',0.6);
                         loopBreak = 1;
                         circle_cnt = 0;
                         cnt = 0;
@@ -262,11 +265,11 @@ while(1)
                         sum(bw_red, 'all')
                         disp('빨간색 검출! 착지!');
                         land(droneObj);                                  
-                    elseif(level_cnt == 1 && sum(bw_purple, "all") == 0)
-                        disp("보라 표식 검출 불가!! 조금뒤로")
-                        moveback(droneObj, 'distance',0.2);
-                    elseif(level_cnt == 2 && sum(bw_green, "all")==0)
+                    elseif(level_cnt == 1 && sum(bw_green, "all") == 0)
                         disp("초록 표식 검출 불가!! 조금뒤로")
+                        moveback(droneObj, 'distance',0.2);
+                    elseif(level_cnt == 2 && sum(bw_purple, "all")==0)
+                        disp("보라 표식 검출 불가!! 조금뒤로")
                         moveback(droneObj, 'distance',0.2);
                     elseif(level_cnt == 3 && sum(bw_red, "all")==0)
                         disp("빨간 표식 검출 불가!! 조금뒤로")
@@ -289,12 +292,15 @@ while(1)
             elseif (bw2_pix_num > 55000)
                 disp("원에 0.3m 접근중")
                 moveforward(droneObj, 'Distance', 0.3);
-            elseif (bw2_pix_num >40000)
-                disp("원에 0.7m 접근");
-                moveforward(droneObj,'Distance',0.7,'Speed',0.8)
-            else
+            elseif (bw2_pix_num >30000)
+                disp("원에 0.6m 접근");
+                moveforward(droneObj,'Distance',0.6,'Speed',0.6)
+            elseif (bw2_pix_num >15000)
                 disp('원에 1.2m 접근');
-                moveforward(droneObj, 'distance', 1.2,'Speed',0.8);
+                moveforward(droneObj, 'distance', 1.2,'Speed',0.6);
+            else
+                disp('원미검출');
+                moveback(droneObj, 'distance', 0.3);                
             end      
             
         elseif moveRow < -50
@@ -322,6 +328,4 @@ while(1)
         subplot(2, 2, 2), imshow(frame);
         subplot(2, 2, 3), imshow(bw1);
     end
-    
-    disp('while문 도는중');
 end
